@@ -80,10 +80,10 @@ enum class VcsHost(
             }.orEmpty()
 
             return "https://dev.azure.com/$userOrOrg/$team/_apis/git/repositories/" +
-                    "$project/items?path=/" +
-                    "&versionDescriptor[version]=${vcsInfo.revision}" +
-                    "&versionDescriptor[versionType]=commit" +
-                    "&\$format=zip&download=true"
+                "$project/items?path=/" +
+                "&versionDescriptor[version]=${vcsInfo.revision}" +
+                "&versionDescriptor[versionType]=commit" +
+                "&\$format=zip&download=true"
         }
 
         override fun toRawDownloadUrlInternal(userOrOrg: String, project: String, vcsInfo: VcsInfo): String {
@@ -93,7 +93,7 @@ enum class VcsHost(
             }.orEmpty()
 
             return "https://dev.azure.com/$userOrOrg/$team/_apis/git/repositories/$project/items" +
-                    "?scopePath=/${vcsInfo.path}"
+                "?scopePath=/${vcsInfo.path}"
         }
 
         /**
@@ -307,11 +307,11 @@ enum class VcsHost(
 
         override fun toArchiveDownloadUrlInternal(userOrOrg: String, project: String, vcsInfo: VcsInfo) =
             "https://${vcsInfo.type.toString().lowercase()}.$hostname/~$userOrOrg/$project/archive/" +
-                    "${vcsInfo.revision}.tar.gz"
+                "${vcsInfo.revision}.tar.gz"
 
         override fun toRawDownloadUrlInternal(userOrOrg: String, project: String, vcsInfo: VcsInfo) =
             "https://${vcsInfo.type.toString().lowercase()}.$hostname/~$userOrOrg/$project/blob/${vcsInfo.revision}/" +
-                    vcsInfo.path
+                vcsInfo.path
     };
 
     companion object {
@@ -338,8 +338,8 @@ enum class VcsHost(
             val unknownVcsInfo = VcsInfo.EMPTY.copy(url = projectUrl)
             val projectUri = projectUrl.toUri().getOrElse { return unknownVcsInfo }
 
-            fun URI.isTfsGitUrl() = path != null && host != null &&
-                    ("/tfs/" in path || ".visualstudio.com" in host) && "/_git/" in path
+            fun URI.isTfsGitUrl() =
+                path != null && host != null && ("/tfs/" in path || ".visualstudio.com" in host) && "/_git/" in path
 
             // Fall back to generic URL detection for unknown VCS hosts.
             val svnBranchOrTagMatch = SVN_BRANCH_OR_TAG_PATTERN.matchEntire(projectUrl)
@@ -587,8 +587,13 @@ private fun gitProjectUrlToVcsInfo(projectUrl: URI, pathParser: (String, Iterato
 }
 
 private fun toGitPermalink(
-    vcsUrl: URI, revision: String, path: String, startLine: Int, endLine: Int,
-    startLineMarker: String, endLineMarker: String
+    vcsUrl: URI,
+    revision: String,
+    path: String,
+    startLine: Int,
+    endLine: Int,
+    startLineMarker: String,
+    endLineMarker: String
 ): String {
     var permalink = "https://${vcsUrl.host}${vcsUrl.path.removeSuffix(".git")}"
 

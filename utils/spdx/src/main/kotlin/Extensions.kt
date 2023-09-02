@@ -29,8 +29,7 @@ infix fun SpdxLicense.and(other: SpdxLicense) = this and other.toExpression()
 /**
  * Create an [SpdxExpression] by concatenating [this][SpdxLicense] and [other] using [SpdxOperator.AND].
  */
-infix fun SpdxLicense.and(other: SpdxExpression) =
-    SpdxCompoundExpression(toExpression(), SpdxOperator.AND, other)
+infix fun SpdxLicense.and(other: SpdxExpression) = SpdxCompoundExpression(toExpression(), SpdxOperator.AND, other)
 
 /**
  * Create an [SpdxExpression] by concatenating [this][SpdxLicense] and [other] using [SpdxOperator.OR].
@@ -40,8 +39,7 @@ infix fun SpdxLicense.or(other: SpdxLicense) = this or other.toExpression()
 /**
  * Create an [SpdxExpression] by concatenating [this][SpdxLicense] and [other] using [SpdxOperator.OR].
  */
-infix fun SpdxLicense.or(other: SpdxExpression) =
-    SpdxCompoundExpression(toExpression(), SpdxOperator.OR, other)
+infix fun SpdxLicense.or(other: SpdxExpression) = SpdxCompoundExpression(toExpression(), SpdxOperator.OR, other)
 
 /**
  * Create an [SpdxExpression] by concatenating [this][SpdxLicense] and [exception] using [SpdxExpression.WITH].
@@ -74,11 +72,11 @@ fun String.isSpdxExpression(strictness: Strictness = Strictness.ALLOW_DEPRECATED
     runCatching { SpdxExpression.parse(this, strictness) }.isSuccess
 
 /**
- * Return true if and only if this String can be successfully parsed to an [SpdxExpression] or if it equals
- * [SpdxConstants.NONE] or [SpdxConstants.NOASSERTION].
+ * Return true if and only if this String can be successfully parsed to an [SpdxExpression] with the given [strictness],
+ * or if it equals [SpdxConstants.NONE] or [SpdxConstants.NOASSERTION].
  */
-fun String.isSpdxExpressionOrNotPresent(): Boolean =
-    SpdxConstants.isNotPresent(this) || isSpdxExpression()
+fun String.isSpdxExpressionOrNotPresent(strictness: Strictness = Strictness.ALLOW_DEPRECATED): Boolean =
+    SpdxConstants.isNotPresent(this) || isSpdxExpression(strictness)
 
 /**
  * Parses the string as an [SpdxExpression] of the given [strictness] and returns the result on success, or throws an

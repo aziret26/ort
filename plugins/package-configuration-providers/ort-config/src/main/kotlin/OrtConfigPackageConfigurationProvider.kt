@@ -30,8 +30,8 @@ import org.ossreviewtoolkit.model.VcsInfo
 import org.ossreviewtoolkit.model.VcsType
 import org.ossreviewtoolkit.model.config.PackageConfiguration
 import org.ossreviewtoolkit.model.utils.PackageConfigurationProvider
-import org.ossreviewtoolkit.plugins.packageconfigurationproviders.api.DirectoryPackageConfigurationProvider
 import org.ossreviewtoolkit.plugins.packageconfigurationproviders.api.PackageConfigurationProviderFactory
+import org.ossreviewtoolkit.plugins.packageconfigurationproviders.dir.DirPackageConfigurationProvider
 import org.ossreviewtoolkit.utils.common.safeMkdirs
 import org.ossreviewtoolkit.utils.ort.ortDataDirectory
 
@@ -60,10 +60,12 @@ class OrtConfigPackageConfigurationProvider : PackageConfigurationProvider {
         }
     }
 
+    private val provider by lazy {
+        DirPackageConfigurationProvider(configurationsDir.resolve(PACKAGE_CONFIGURATIONS_DIR))
+    }
+
     override fun getPackageConfigurations(packageId: Identifier, provenance: Provenance) =
-        DirectoryPackageConfigurationProvider(
-            configurationsDir.resolve(PACKAGE_CONFIGURATIONS_DIR)
-        ).getPackageConfigurations(packageId, provenance)
+        provider.getPackageConfigurations(packageId, provenance)
 }
 
 private fun updateOrtConfig(dir: File) {

@@ -142,6 +142,7 @@
 "BSD 2-clause \\\"Simplified\\\" or \\\"FreeBSD\\\"\n                License": BSD-2-Clause OR BSD-2-Clause-Views
 "BSD 3 Clause": BSD-3-Clause
 "BSD 3": BSD-3-Clause
+"BSD 3-Clause License or Apache License, Version 2.0": BSD-3-Clause OR Apache-2.0
 "BSD 3-Clause License": BSD-3-Clause
 "BSD 3-Clause \"New\" or \"Revised\" License (BSD-3-Clause)": BSD-3-Clause
 "BSD 3-Clause": BSD-3-Clause
@@ -457,6 +458,7 @@
 "The OpenLDAP Public License, Version 2.8, 17 August 2003": OLDAP-2.8
 "The PostgreSQL License": PostgreSQL
 "The SAX License": SAX-PD
+"The Unlicense (Unlicense)": Unlicense
 "The W3C License": W3C
 "The W3C Software License": W3C
 "Three-clause BSD-style": BSD-3-Clause
