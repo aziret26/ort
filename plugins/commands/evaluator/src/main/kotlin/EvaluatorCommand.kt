@@ -32,7 +32,7 @@ import com.github.ajalt.clikt.parameters.types.enum
 import com.github.ajalt.clikt.parameters.types.file
 
 import java.io.File
-import java.net.URL
+import java.net.URI
 import java.time.Duration
 
 import kotlin.time.toKotlinDuration
@@ -61,7 +61,7 @@ import org.ossreviewtoolkit.model.utils.addPackageCurations
 import org.ossreviewtoolkit.model.utils.addResolutions
 import org.ossreviewtoolkit.model.utils.mergeLabels
 import org.ossreviewtoolkit.plugins.commands.api.OrtCommand
-import org.ossreviewtoolkit.plugins.commands.api.utils.SeverityStats
+import org.ossreviewtoolkit.plugins.commands.api.utils.SeverityStatsPrinter
 import org.ossreviewtoolkit.plugins.commands.api.utils.configurationGroup
 import org.ossreviewtoolkit.plugins.commands.api.utils.inputGroup
 import org.ossreviewtoolkit.plugins.commands.api.utils.outputGroup
@@ -198,13 +198,13 @@ class EvaluatorCommand : OrtCommand(
     ).flag()
 
     override fun run() {
-        val scriptUrls = mutableSetOf<URL>()
+        val scriptUrls = mutableSetOf<URI>()
 
-        rulesFile.mapTo(scriptUrls) { it.toURI().toURL() }
-        rulesResource.mapTo(scriptUrls) { javaClass.getResource(it) }
+        rulesFile.mapTo(scriptUrls) { it.toURI() }
+        rulesResource.mapTo(scriptUrls) { javaClass.getResource(it).toURI() }
 
         if (scriptUrls.isEmpty()) {
-            scriptUrls += ortConfigDirectory.resolve(ORT_EVALUATOR_RULES_FILENAME).toURI().toURL()
+            scriptUrls += ortConfigDirectory.resolve(ORT_EVALUATOR_RULES_FILENAME).toURI()
         }
 
         val configurationFiles = listOfNotNull(
@@ -218,8 +218,8 @@ class EvaluatorCommand : OrtCommand(
             file.absolutePath + " (does not exist)".takeIf { !file.exists() }.orEmpty()
         }
 
-        println("Looking for evaluator-specific configuration in the following files and directories:")
-        println("\t" + configurationInfo)
+        echo("Looking for evaluator-specific configuration in the following files and directories:")
+        echo("\t" + configurationInfo)
 
         // Fail early if output files exist and must not be overwritten.
         val outputFiles = mutableSetOf<File>()
@@ -238,10 +238,10 @@ class EvaluatorCommand : OrtCommand(
             var allChecksSucceeded = true
 
             scriptUrls.forEach {
-                if (evaluator.checkSyntax(it.readText())) {
-                    println("Syntax check for $it succeeded.")
+                if (evaluator.checkSyntax(it.toURL().readText())) {
+                    echo("Syntax check for $it succeeded.")
                 } else {
-                    println("Syntax check for $it failed.")
+                    echo("Syntax check for $it failed.")
                     allChecksSucceeded = false
                 }
             }
@@ -312,14 +312,14 @@ class EvaluatorCommand : OrtCommand(
             licenseClassificationsFile.takeIf { it.isFile }?.readValue<LicenseClassifications>().orEmpty()
         val evaluator = Evaluator(ortResultInput, licenseInfoResolver, resolutionProvider, licenseClassifications)
 
-        val scripts = scriptUrls.map { it.readText() }
+        val scripts = scriptUrls.map { it.toURL().readText() }
         val evaluatorRun = evaluator.run(*scripts.toTypedArray())
 
         val duration = with(evaluatorRun) { Duration.between(startTime, endTime).toKotlinDuration() }
-        println("The evaluation of ${scriptUrls.size} script(s) took $duration.")
+        echo("The evaluation of ${scriptUrls.size} script(s) took $duration.")
 
         evaluatorRun.violations.forEach { violation ->
-            println(violation.format())
+            echo(violation.format())
         }
 
         // Note: This overwrites any existing EvaluatorRun from the input file.
@@ -330,14 +330,11 @@ class EvaluatorCommand : OrtCommand(
 
         outputDir?.let { absoluteOutputDir ->
             absoluteOutputDir.safeMkdirs()
-            writeOrtResult(ortResultOutput, outputFiles, "evaluation")
+            writeOrtResult(ortResultOutput, outputFiles, terminal)
         }
 
-        val (resolvedViolations, unresolvedViolations) =
-            evaluatorRun.violations.partition { resolutionProvider.isResolved(it) }
-        val severityStats = SeverityStats.createFromRuleViolations(resolvedViolations, unresolvedViolations)
-
-        severityStats.print(terminal).conclude(ortConfig.severeRuleViolationThreshold, 2)
+        SeverityStatsPrinter(terminal, resolutionProvider).stats(evaluatorRun.violations)
+            .print().conclude(ortConfig.severeRuleViolationThreshold, 2)
     }
 }
 
