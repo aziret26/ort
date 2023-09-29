@@ -36,6 +36,8 @@ import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 private val Project.libs: LibrariesForLibs
     get() = extensions.getByType()
@@ -323,6 +325,22 @@ configure<PublishingExtension> {
             credentials {
                 username = System.getenv("OSSRH_USER") ?: return@credentials
                 password = System.getenv("OSSRH_PASSWORD") ?: return@credentials
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+
+            url = uri("https://maven.pkg.github.com/aziret26/ort")
+
+            val now = LocalDate.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            version = "$version-nightly-${now.format(formatter)}"
+
+            credentials {
+                username = System.getenv("GITHUB_PUBLISH_USERNAME")
+                password = System.getenv("GITHUB_PUBLISH_TOKEN")
             }
         }
     }
