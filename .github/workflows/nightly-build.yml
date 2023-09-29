@@ -2,7 +2,7 @@ name: Nightly Build
 
 on:
   schedule:
-    - cron:  '30 6 * * *'
+    - cron:  '38 * * * *'
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
           distribution: temurin
           java-version: 17
       - name: Build and Publish
-        run: ./gradlew publish
+        run: ./gradlew publishCliPublicationToGitHubPackagesRepository
         env:
           GITHUB_PUBLISH_USERNAME: ${{secrets.GIT_PUBLISH_USERNAME}}
           GITHUB_PUBLISH_TOKEN: ${{secrets.GIT_PUBLISH_TOKEN}}
