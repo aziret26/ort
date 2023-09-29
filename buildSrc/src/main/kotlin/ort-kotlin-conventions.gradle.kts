@@ -339,8 +339,8 @@ configure<PublishingExtension> {
             version = "$version-nightly-${now.format(formatter)}"
 
             credentials {
-                username = System.getenv("GIT_PUBLISH_USERNAME")
-                password = System.getenv("GIT_PUBLISH_TOKEN")
+                username = System.getenv("GITHUB_PUBLISH_USERNAME")
+                password = System.getenv("GITHUB_PUBLISH_TOKEN")
             }
         }
     }
