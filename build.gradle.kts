@@ -31,6 +31,7 @@ plugins {
     alias(libs.plugins.gitSemver)
     alias(libs.plugins.ideaExt)
     alias(libs.plugins.versions)
+    id("maven-publish")
 }
 
 semver {
@@ -210,5 +211,29 @@ val checkGitAttributes by tasks.registering {
         }
 
         if (hasErrors) throw GradleException("There were stale '.gitattribute' entries.")
+    }
+}
+
+publishing {
+    publications {
+        register("mavenJava", MavenPublication::class) {
+            groupId = "org.ossreviewtoolkit"
+            artifactId = "ort-cli"
+            val now = java.time.LocalDate.now()
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            version = "$version-nightly-${now.format(formatter)}"
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/aziret26/ort")
+            val usernameKey = "GITHUB_PUBLISH_USERNAME"
+            val tokenKey = "GITHUB_PUBLISH_TOKEN"
+            credentials.username = project.findProperty(usernameKey)?.let { it as String }
+                ?: System.getenv(usernameKey)
+            credentials.password = project.findProperty(tokenKey)?.let { it as String }
+                ?: System.getenv(tokenKey)
+        }
     }
 }
